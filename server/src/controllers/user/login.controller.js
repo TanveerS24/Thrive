@@ -2,6 +2,7 @@ import User from '../../models/user.model.js';
 import auth from '../../models/auth.model.js';
 
 import { hashEmail, comparePassword } from '../../utils/hash.util.js';
+import { decrypt } from '../../utils/encryption.util.js';
 
 const loginUser = async (req, res) => {
     try {
@@ -17,7 +18,11 @@ const loginUser = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
-        return res.status(200).json({ message: 'Login successful', userId: existingUser._id, username: existingUser.name });
+        
+        // Decrypt the username before sending
+        const decryptedName = decrypt(existingUser.name);
+        
+        return res.status(200).json({ message: 'Login successful', userId: existingUser._id, username: decryptedName });
     } catch (error) {
         console.error('Error logging in user:', error);
         return res.status(500).json({ message: 'Internal server error' });

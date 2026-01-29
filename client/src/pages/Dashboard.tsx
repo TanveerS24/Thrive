@@ -38,7 +38,6 @@ const Dashboard: React.FC = () => {
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [isCreateCollectionModalOpen, setIsCreateCollectionModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [updateTimeouts, setUpdateTimeouts] = useState<{ [key: string]: ReturnType<typeof setTimeout> }>({});
   const [showHiddenTasks, setShowHiddenTasks] = useState(false);
 
   useEffect(() => {
@@ -89,28 +88,49 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleToggleTaskDay = (taskId: string) => {
+  const handleToggleTaskDay = async (taskId: string, dateString: string) => {
     if (!goalStatus || !selectedGoalId) return;
 
-    // Clear existing timeout if any
-    if (updateTimeouts[taskId]) {
-      clearTimeout(updateTimeouts[taskId]);
-    }
-
-    // Set new timeout for 2 seconds
-    const timeout = setTimeout(async () => {
-      try {
-        await goalAPI.toggleTaskCompletion(goalStatus._id, taskId);
-        fetchGoalStatus(selectedGoalId);
-      } catch (error) {
-        console.error('Error toggling task completion:', error);
+    // Optimistic update - immediately update UI
+    const taskCompletedIndex = goalStatus.completedTasks.findIndex(ct => ct.taskId === taskId);
+    const newGoalStatus = { ...goalStatus };
+    
+    if (taskCompletedIndex !== -1) {
+      const completedDays = [...newGoalStatus.completedTasks[taskCompletedIndex].completedDays];
+      const dayIndex = completedDays.indexOf(dateString);
+      
+      if (dayIndex !== -1) {
+        // Remove the date (unmark)
+        completedDays.splice(dayIndex, 1);
+      } else {
+        // Add the date (mark as complete)
+        completedDays.push(dateString);
       }
-    }, 2000);
+      
+      newGoalStatus.completedTasks[taskCompletedIndex] = {
+        ...newGoalStatus.completedTasks[taskCompletedIndex],
+        completedDays
+      };
+    } else {
+      // Task not in completed list yet, add it
+      newGoalStatus.completedTasks.push({
+        taskId,
+        completedDays: [dateString]
+      });
+    }
+    
+    setGoalStatus(newGoalStatus);
 
-    setUpdateTimeouts({
-      ...updateTimeouts,
-      [taskId]: timeout,
-    });
+    // Immediately update backend
+    try {
+      await goalAPI.toggleTaskCompletion(goalStatus._id, taskId, dateString);
+      // Fetch fresh data from server after update
+      fetchGoalStatus(selectedGoalId);
+    } catch (error) {
+      console.error('Error toggling task completion:', error);
+      // Revert optimistic update on error
+      fetchGoalStatus(selectedGoalId);
+    }
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -176,33 +196,34 @@ const Dashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background-light flex items-center justify-center">
-        <p className="text-text-muted">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl text-gray-900 dark:text-white">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="min-h-screen">
+      <div className="relative z-10 min-h-screen">
       {/* Header */}
-      <header className="bg-surface-light shadow-lg border-b border-accent-dark border-opacity-20">
+      <header className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-primary">Thrive</h1>
-            {username && <p className="text-sm text-text-muted">Welcome, {username}</p>}
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Thrive</h1>
+            {username && <p className="text-sm text-gray-600 dark:text-gray-300">Welcome, {username}</p>}
           </div>
           <div className="flex gap-3 items-center">
             {selectedGoal && selectedGoal.tasks.length > visibleTasks.size && (
               <button
                 onClick={() => setShowHiddenTasks(!showHiddenTasks)}
-                className="px-4 py-2 bg-accent-light text-background-light rounded-lg hover:bg-primary transition-colors text-sm font-semibold"
+                className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-sm font-semibold"
               >
                 {showHiddenTasks ? 'Hide Hidden' : `Hidden (${selectedGoal.tasks.length - visibleTasks.size})`}
               </button>
             )}
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-text-muted hover:bg-background-light rounded-lg transition-colors hover:text-primary font-semibold"
+              className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors hover:text-gray-900 dark:hover:text-white font-semibold"
             >
               Logout
             </button>
@@ -211,13 +232,13 @@ const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-[95%] mx-auto px-8 py-8">
         {goals.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-text-muted text-lg mb-4">No collections present</p>
+            <p className="text-gray-900 dark:text-white text-lg mb-4">No collections present</p>
             <button
               onClick={() => setIsCreateCollectionModalOpen(true)}
-              className="px-6 py-2 bg-gradient-to-r from-primary to-accent-light text-white rounded-lg hover:shadow-lg hover:shadow-primary hover:shadow-opacity-50 transition-all font-semibold"
+              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-500 dark:to-blue-600 text-white rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all font-semibold"
             >
               Create First Collection
             </button>
@@ -225,9 +246,9 @@ const Dashboard: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {/* Title Dropdown */}
-            <div className="flex gap-4 items-end">
+            <div className="flex gap-4 items-end px-4">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-text-light mb-2">
+                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
                   Select Collection
                 </label>
                 <TitleDropdown
@@ -242,39 +263,78 @@ const Dashboard: React.FC = () => {
 
             {/* Tasks List */}
             {selectedGoal && (
-              <div className="space-y-4">
+              <div className="space-y-4 bg-transparent backdrop-blur-md rounded-2xl p-6 px-8">
                 <div>
-                  <h2 className="text-xl font-bold text-text-light mb-2">{selectedGoal.title}</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{selectedGoal.title}</h2>
                   {selectedGoal.description && (
-                    <p className="text-text-muted text-sm">{selectedGoal.description}</p>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm">{selectedGoal.description}</p>
                   )}
                 </div>
 
-                {/* Task Rows */}
-                <div className="space-y-3">
-                  {selectedGoal.tasks
-                    .filter((task) => visibleTasks.has(task._id))
-                    .map((task) => {
-                      const completedTask = goalStatus?.completedTasks.find(
-                        (ct) => ct.taskId === task._id
-                      );
-                      return (
-                        <TaskRow
-                          key={task._id}
-                          task={task}
-                          completedDays={completedTask?.completedDays || []}
-                          onToggleDay={() => handleToggleTaskDay(task._id)}
-                          onDelete={() => handleDeleteTask(task._id)}
-                          onHide={() => handleHideTask(task._id)}
-                        />
-                      );
-                    })}
+                {/* Calendar Table */}
+                <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50">
+                  {/* Header Row with Dates */}
+                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 border-b border-gray-300 dark:border-gray-600">
+                    <div className="flex items-center">
+                      {/* Task Name Header */}
+                      <div className="w-56 shrink-0 px-6 py-4">
+                        <p className="font-bold text-white text-lg">Task Name</p>
+                      </div>
+                      
+                      {/* Dates Header - exact width calculation: 31 days * (44px button + 8px gap) */}
+                      <div className="flex gap-2 px-4 py-4" style={{ minWidth: 'calc(31 * 52px)' }}>
+                        {Array.from({ length: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate() }).map((_, index) => {
+                          const dayNum = index + 1;
+                          const date = new Date(new Date().getFullYear(), new Date().getMonth(), dayNum);
+                          const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                          const dayName = dayNames[date.getDay()];
+                          
+                          return (
+                            <div
+                              key={index}
+                              className="w-11 h-11 shrink-0 flex flex-col items-center justify-center"
+                            >
+                              <span className="text-sm font-bold text-white leading-tight">{dayNum}</span>
+                              <span className="text-[10px] text-white/90 leading-tight">{dayName}</span>
+                            </div>
+                          );
+                        })}  
+                      </div>
+                      
+                      {/* Actions Header */}
+                      <div className="w-40 shrink-0 px-4 py-4">
+                        <p className="font-bold text-white text-center">Actions</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Task Rows */}
+                  <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {selectedGoal.tasks
+                      .filter((task) => visibleTasks.has(task._id))
+                      .map((task) => {
+                        const completedTask = goalStatus?.completedTasks.find(
+                          (ct) => ct.taskId === task._id
+                        );
+                        return (
+                          <TaskRow
+                            key={task._id}
+                            task={task}
+                            completedDays={completedTask?.completedDays || []}
+                            onToggleDay={(dateString) => handleToggleTaskDay(task._id, dateString)}
+                            onDelete={() => handleDeleteTask(task._id)}
+                            onHide={() => handleHideTask(task._id)}
+                            isFirstTask={false}
+                          />
+                        );
+                      })}
+                  </div>
                 </div>
 
                 {/* Hidden Tasks Section */}
                 {showHiddenTasks && (
-                  <div className="mt-8 pt-6 border-t border-gray-300">
-                    <h3 className="text-lg font-semibold text-text-light mb-4">Hidden Tasks</h3>
+                  <div className="mt-8 pt-6 border-t border-gray-300 dark:border-gray-600">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Hidden Tasks</h3>
                     <div className="space-y-3">
                       {selectedGoal.tasks
                         .filter((task) => !visibleTasks.has(task._id))
@@ -282,15 +342,15 @@ const Dashboard: React.FC = () => {
                           return (
                             <div
                               key={task._id}
-                              className="flex items-center justify-between p-4 rounded-xl border bg-yellow-50 border-yellow-200"
+                              className="flex items-center justify-between p-4 rounded-xl border bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"
                             >
                               <div>
-                                <p className="font-medium text-text-light">{task.name}</p>
-                                <p className="text-xs text-text-muted">{task.targetDays} days target</p>
+                                <p className="font-medium text-gray-900 dark:text-white">{task.name}</p>
+                                <p className="text-xs text-gray-700 dark:text-gray-300">{task.targetDays} days target</p>
                               </div>
                               <button
                                 onClick={() => setVisibleTasks(new Set([...visibleTasks, task._id]))}
-                                className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-soft transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-sm font-medium"
                               >
                                 Unhide
                               </button>
@@ -305,7 +365,7 @@ const Dashboard: React.FC = () => {
                 {/* Add Task Button */}
                 <button
                   onClick={() => setIsAddTaskModalOpen(true)}
-                  className="w-full py-3 border-2 border-dashed rounded-xl transition-colors font-medium border-gray-300 text-text-muted hover:border-primary hover:text-primary"
+                  className="w-full py-3 border-2 border-dashed rounded-xl transition-colors font-medium border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                 >
                   + Add Task
                 </button>
@@ -327,6 +387,7 @@ const Dashboard: React.FC = () => {
         onClose={() => setIsCreateCollectionModalOpen(false)}
         onCreate={handleCreateCollection}
       />
+      </div>
     </div>
   );
 };

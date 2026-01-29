@@ -83,13 +83,14 @@ export const goalAPI = {
   },
 
   // Toggle task completion
-  toggleTaskCompletion: async (goalStatusId: string, taskId: string) => {
+  toggleTaskCompletion: async (goalStatusId: string, taskId: string, date: string) => {
     const response = await fetch(
       `${API_BASE_URL}/goal/toggle-completed/${goalStatusId}/${taskId}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        body: JSON.stringify({ date }),
       }
     );
     return response.json();

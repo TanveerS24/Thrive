@@ -25,7 +25,7 @@ const goalStatusSchema = new mongoose.Schema({
             required: true,
         },
         completedDays: [{
-            type: Date,
+            type: String,
         }],
     }],
 }, { timestamps: true });

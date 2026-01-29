@@ -2,7 +2,11 @@ import GoalStatus from '../../models/goalStatus.model.js';
 
 const toggleCompletedTask = async (req, res) => {
     try {
+        console.log('invoked toggleCompletedTask controller');
         const { goalStatusId, taskId } = req.params;
+        const { date } = req.body;
+        
+        console.log('Received date from frontend:', date);
 
         // Find goal status
         const goalStatus = await GoalStatus.findById(goalStatusId);
@@ -19,29 +23,35 @@ const toggleCompletedTask = async (req, res) => {
             return res.status(404).json({ message: 'Task not found in goal status' });
         }
 
-        // Get current date (without time)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Use the provided date or fall back to current date
+        let dateString;
+        if (date) {
+            dateString = date; // Already in YYYY-MM-DD format
+        } else {
+            const today = new Date();
+            dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        }
+        
+        console.log('Date string to toggle:', dateString);
 
-        // Check if today's date already exists in completedDays
-        const dateIndex = goalStatus.completedTasks[completedTaskIndex].completedDays.findIndex(
-            date => {
-                const existingDate = new Date(date);
-                existingDate.setHours(0, 0, 0, 0);
-                return existingDate.getTime() === today.getTime();
-            }
-        );
+        // Check if the date already exists in completedDays
+        const dateIndex = goalStatus.completedTasks[completedTaskIndex].completedDays.indexOf(dateString);
+        
+        console.log('Date index:', dateIndex);
+        console.log('Current completedDays:', goalStatus.completedTasks[completedTaskIndex].completedDays);
 
         if (dateIndex !== -1) {
-            // Remove today's date if it exists
+            // Remove the date if it exists
             goalStatus.completedTasks[completedTaskIndex].completedDays.splice(dateIndex, 1);
         } else {
-            // Add today's date if it doesn't exist
-            goalStatus.completedTasks[completedTaskIndex].completedDays.push(today);
+            // Add the date if it doesn't exist (store as YYYY-MM-DD string)
+            goalStatus.completedTasks[completedTaskIndex].completedDays.push(dateString);
         }
 
         await goalStatus.save();
 
+        console.log('Updated goalStatus:', goalStatus);
+        console.log('Final completedDays for task:', goalStatus.completedTasks[completedTaskIndex].completedDays);
         return res.status(200).json({
             message: dateIndex !== -1 ? 'Task completion removed' : 'Task marked as completed',
             goalStatus: goalStatus,
