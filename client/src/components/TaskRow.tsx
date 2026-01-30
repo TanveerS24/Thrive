@@ -21,13 +21,9 @@ const TaskRow: React.FC<TaskRowProps> = ({
   onToggleDay,
   onDelete,
   onHide,
-  isFirstTask,
 }) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
-  // Get first day of current month
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   
   // Get last day of current month
   const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
