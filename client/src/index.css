@@ -21,14 +21,43 @@ html.dark {
 }
 
 body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #1a202c;
+  background: linear-gradient(135deg, #FF9E5C 0%, #FF6B35 50%, #E85A2A 100%);
+  color: #1a0f0a;
   min-height: 100vh;
 }
 
 html.dark body {
-  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-  color: #f7fafc;
+  background: linear-gradient(135deg, #0F0A08 0%, #1A1210 25%, #2B1810 75%, #1A1210 100%);
+  color: #f5e6dc;
+  position: relative;
+}
+
+/* Ember glow effect for dark theme */
+html.dark body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(255, 69, 0, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 50% 80%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+  animation: flicker 6s ease-in-out infinite;
+}
+
+html.dark #root {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  25% { opacity: 0.9; }
+  50% { opacity: 0.95; }
+  75% { opacity: 0.88; }
 }
 
 #root {
@@ -144,16 +173,30 @@ html.dark body {
 /* Input & Button Styles */
 input, textarea, select {
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 2px solid #d1d5db;
   border-radius: 0.375rem;
   font-family: inherit;
+  background: white;
+  color: #1a0f0a;
+}
+
+html.dark input, html.dark textarea, html.dark select {
+  border: 2px solid #4A3528;
+  background: #1A1210;
+  color: #F5E6DC;
 }
 
 input:focus, textarea:focus, select:focus {
   outline: none;
   ring: 2px;
-  ring-color: #3b82f6;
-  border-color: transparent;
+  ring-color: #FF6B35;
+  border-color: #FF6B35;
+}
+
+html.dark input:focus, html.dark textarea:focus, html.dark select:focus {
+  ring-color: #FF6B35;
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
 }
 
 button {
@@ -167,11 +210,12 @@ button {
 
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 button:hover:not(:disabled) {
   opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 /* Scrollbar */
@@ -184,11 +228,24 @@ button:hover:not(:disabled) {
   background: #f3f4f6;
 }
 
+html.dark ::-webkit-scrollbar-track {
+  background: #1A1210;
+}
+
 ::-webkit-scrollbar-thumb {
   background: #d1d5db;
   border-radius: 4px;
 }
 
+html.dark ::-webkit-scrollbar-thumb {
+  background: #4A3528;
+  border-radius: 4px;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #FF6B35;
 }

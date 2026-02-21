@@ -6,6 +6,7 @@ import TaskRow from '../components/TaskRow';
 import TitleDropdown from '../components/TitleDropdown';
 import AddTaskModal from '../components/AddTaskModal';
 import CreateCollectionModal from '../components/CreateCollectionModal';
+import ThemeToggle from '../components/ThemeToggle';
 
 interface Task {
   _id: string;
@@ -197,7 +198,10 @@ const Dashboard: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-900 dark:text-white">Loading...</p>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary dark:border-ember-flame border-t-transparent dark:border-t-transparent mx-auto mb-4"></div>
+          <p className="text-xl font-semibold text-gray-900 dark:text-text-ember">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -206,24 +210,25 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen">
       <div className="relative z-10 min-h-screen">
       {/* Header */}
-      <header className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white/95 dark:bg-ember-coal/98 backdrop-blur-md shadow-lg dark:shadow-ember border-b-2 border-gray-200 dark:border-ember-flame/30">
         <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Thrive</h1>
-            {username && <p className="text-sm text-gray-600 dark:text-gray-300">Welcome, {username}</p>}
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-ember-flame">Thrive</h1>
+            {username && <p className="text-sm text-gray-600 dark:text-text-muted">Welcome, {username}</p>}
           </div>
           <div className="flex gap-3 items-center">
+            <ThemeToggle />
             {selectedGoal && selectedGoal.tasks.length > visibleTasks.size && (
               <button
                 onClick={() => setShowHiddenTasks(!showHiddenTasks)}
-                className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-sm font-semibold"
+                className="px-4 py-2 bg-primary dark:bg-ember-flame text-white rounded-lg hover:bg-primary-dark dark:hover:shadow-ember transition-all text-sm font-bold shadow-md"
               >
                 {showHiddenTasks ? 'Hide Hidden' : `Hidden (${selectedGoal.tasks.length - visibleTasks.size})`}
               </button>
             )}
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors hover:text-gray-900 dark:hover:text-white font-semibold"
+              className="px-4 py-2 text-gray-800 dark:text-text-ember bg-gray-100 dark:bg-ember-ash/70 hover:bg-gray-200 dark:hover:bg-ember-ash rounded-lg transition-all font-bold shadow-md border border-gray-300 dark:border-ember-ash"
             >
               Logout
             </button>
@@ -235,10 +240,10 @@ const Dashboard: React.FC = () => {
       <main className="max-w-[95%] mx-auto px-8 py-8">
         {goals.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-gray-900 dark:text-white text-lg mb-4">No collections present</p>
+            <p className="text-gray-900 dark:text-text-ember text-xl font-bold mb-4">No collections present</p>
             <button
               onClick={() => setIsCreateCollectionModalOpen(true)}
-              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-500 dark:to-blue-600 text-white rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all font-semibold"
+              className="px-6 py-3 bg-gradient-to-r from-primary to-accent dark:from-ember-flame dark:to-primary text-white rounded-lg hover:shadow-ember-lg transition-all font-bold text-base shadow-lg"
             >
               Create First Collection
             </button>
@@ -248,7 +253,7 @@ const Dashboard: React.FC = () => {
             {/* Title Dropdown */}
             <div className="flex gap-4 items-end px-4">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                <label className="block text-sm font-bold text-gray-900 dark:text-text-ember mb-2">
                   Select Collection
                 </label>
                 <TitleDropdown
@@ -265,20 +270,20 @@ const Dashboard: React.FC = () => {
             {selectedGoal && (
               <div className="space-y-4 bg-transparent backdrop-blur-md rounded-2xl p-6 px-8">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{selectedGoal.title}</h2>
+                  <h2 className="text-2xl font-black text-gray-900 dark:text-text-ember mb-2">{selectedGoal.title}</h2>
                   {selectedGoal.description && (
-                    <p className="text-gray-700 dark:text-gray-300 text-sm">{selectedGoal.description}</p>
+                    <p className="text-gray-800 dark:text-text-muted text-sm font-semibold">{selectedGoal.description}</p>
                   )}
                 </div>
 
                 {/* Calendar Table */}
-                <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50">
+                <div className="overflow-x-auto rounded-xl border-2 border-gray-300 dark:border-ember-ash bg-white dark:bg-ember-coal/70 dark:shadow-ember-lg">
                   {/* Header Row with Dates */}
-                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 border-b border-gray-300 dark:border-gray-600">
+                  <div className="bg-gradient-to-r from-primary to-accent dark:from-ember-flame dark:to-primary border-b-2 border-gray-300 dark:border-ember-glow/50">
                     <div className="flex items-center">
                       {/* Task Name Header */}
                       <div className="w-56 shrink-0 px-6 py-4">
-                        <p className="font-bold text-white text-lg">Task Name</p>
+                        <p className="font-black text-white text-lg">Task Name</p>
                       </div>
                       
                       {/* Dates Header - exact width calculation: 31 days * (44px button + 8px gap) */}
@@ -294,8 +299,8 @@ const Dashboard: React.FC = () => {
                               key={index}
                               className="w-11 h-11 shrink-0 flex flex-col items-center justify-center"
                             >
-                              <span className="text-sm font-bold text-white leading-tight">{dayNum}</span>
-                              <span className="text-[10px] text-white/90 leading-tight">{dayName}</span>
+                              <span className="text-sm font-black text-white leading-tight">{dayNum}</span>
+                              <span className="text-[10px] text-white/95 leading-tight font-bold">{dayName}</span>
                             </div>
                           );
                         })}  
@@ -303,13 +308,13 @@ const Dashboard: React.FC = () => {
                       
                       {/* Actions Header */}
                       <div className="w-40 shrink-0 px-4 py-4">
-                        <p className="font-bold text-white text-center">Actions</p>
+                        <p className="font-black text-white text-center">Actions</p>
                       </div>
                     </div>
                   </div>
                   
                   {/* Task Rows */}
-                  <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                  <div className="divide-y divide-gray-200 dark:divide-ember-ash">
                     {selectedGoal.tasks
                       .filter((task) => visibleTasks.has(task._id))
                       .map((task) => {
@@ -333,8 +338,8 @@ const Dashboard: React.FC = () => {
 
                 {/* Hidden Tasks Section */}
                 {showHiddenTasks && (
-                  <div className="mt-8 pt-6 border-t border-gray-300 dark:border-gray-600">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Hidden Tasks</h3>
+                  <div className="mt-8 pt-6 border-t-2 border-gray-300 dark:border-ember-ash">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-text-ember mb-4">Hidden Tasks</h3>
                     <div className="space-y-3">
                       {selectedGoal.tasks
                         .filter((task) => !visibleTasks.has(task._id))
@@ -342,15 +347,15 @@ const Dashboard: React.FC = () => {
                           return (
                             <div
                               key={task._id}
-                              className="flex items-center justify-between p-4 rounded-xl border bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"
+                              className="flex items-center justify-between p-4 rounded-xl border-2 bg-yellow-50 dark:bg-ember-ash/50 border-yellow-300 dark:border-ember-flame/40"
                             >
                               <div>
-                                <p className="font-medium text-gray-900 dark:text-white">{task.name}</p>
-                                <p className="text-xs text-gray-700 dark:text-gray-300">{task.targetDays} days target</p>
+                                <p className="font-bold text-gray-900 dark:text-text-ember">{task.name}</p>
+                                <p className="text-xs font-semibold text-gray-700 dark:text-text-muted">{task.targetDays} days target</p>
                               </div>
                               <button
                                 onClick={() => setVisibleTasks(new Set([...visibleTasks, task._id]))}
-                                className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-primary dark:bg-ember-flame text-white rounded-xl hover:bg-primary-dark dark:hover:shadow-ember transition-all text-sm font-bold shadow-md"
                               >
                                 Unhide
                               </button>
@@ -365,7 +370,7 @@ const Dashboard: React.FC = () => {
                 {/* Add Task Button */}
                 <button
                   onClick={() => setIsAddTaskModalOpen(true)}
-                  className="w-full py-3 border-2 border-dashed rounded-xl transition-colors font-medium border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  className="w-full py-3 border-2 border-dashed rounded-xl transition-all font-bold text-base border-gray-400 dark:border-ember-ash text-gray-800 dark:text-text-ember hover:border-primary dark:hover:border-ember-flame hover:bg-orange-50 dark:hover:bg-ember-ash/30 dark:hover:text-text-ember hover:shadow-md"
                 >
                   + Add Task
                 </button>

@@ -24,21 +24,21 @@ const TitleDropdown: React.FC<TitleDropdownProps> = ({
     <div className="relative w-full max-w-sm">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 text-left border rounded-lg hover:border-blue-500 dark:hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors flex justify-between items-center bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
+        className="w-full px-4 py-3 text-left border-2 rounded-lg hover:border-primary dark:hover:border-ember-flame focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-ember-flame transition-all flex justify-between items-center bg-white dark:bg-ember-coal border-gray-300 dark:border-ember-ash text-gray-900 dark:text-text-ember font-semibold shadow-sm hover:shadow-md"
       >
         <span className="font-medium">{selectedGoal?.title || 'Select a collection'}</span>
         <span className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 border rounded-lg shadow-lg z-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+        <div className="absolute top-full left-0 right-0 mt-2 border-2 rounded-lg shadow-xl dark:shadow-ember-lg z-10 bg-white dark:bg-ember-coal/95 border-gray-300 dark:border-ember-ash backdrop-blur-sm">
           {goals.length === 0 ? (
-            <div className="p-4 text-center text-gray-600 dark:text-gray-300">No collections present</div>
+            <div className="p-4 text-center text-gray-600 dark:text-text-muted font-semibold">No collections present</div>
           ) : (
             goals.map((goal) => (
               <div
                 key={goal._id}
-                className="flex items-center justify-between p-3 border-b last:border-b-0 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600"
+                className="flex items-center justify-between p-3 border-b last:border-b-0 transition-colors hover:bg-gray-50 dark:hover:bg-ember-ash/40 border-gray-200 dark:border-ember-ash"
               >
                 <button
                   onClick={() => {
@@ -47,8 +47,8 @@ const TitleDropdown: React.FC<TitleDropdownProps> = ({
                   }}
                   className="flex-1 text-left"
                 >
-                  <p className="font-medium text-gray-900 dark:text-white">{goal.title}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">{goal.tasks.length} tasks</p>
+                  <p className="font-bold text-gray-900 dark:text-text-ember">{goal.title}</p>
+                  <p className="text-xs font-semibold text-gray-600 dark:text-text-muted">{goal.tasks.length} tasks</p>
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(goal._id)}
@@ -59,8 +59,8 @@ const TitleDropdown: React.FC<TitleDropdownProps> = ({
 
                 {showDeleteConfirm === goal._id && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 rounded-xl flex items-center justify-center">
-                    <div className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
-                      <p className="mb-4 text-gray-900 dark:text-white">Delete this collection?</p>
+                    <div className="p-4 rounded-xl bg-white dark:bg-ember-coal border-2 border-gray-300 dark:border-ember-ash shadow-lg dark:shadow-ember">
+                      <p className="mb-4 font-bold text-gray-900 dark:text-text-ember">Delete this collection?</p>
                       <div className="flex gap-2">
                         <button
                           onClick={() => {
@@ -68,13 +68,13 @@ const TitleDropdown: React.FC<TitleDropdownProps> = ({
                             setShowDeleteConfirm(null);
                             setIsOpen(false);
                           }}
-                          className="px-3 py-1 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
+                          className="px-3 py-1 bg-red-600 dark:bg-red-700 text-white rounded-xl hover:bg-red-700 dark:hover:bg-red-600 transition-colors font-bold text-sm"
                         >
                           Delete
                         </button>
                         <button
                           onClick={() => setShowDeleteConfirm(null)}
-                          className="px-3 py-1 rounded-lg transition-colors bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
+                          className="px-3 py-1 rounded-lg transition-colors bg-gray-200 dark:bg-ember-ash text-gray-900 dark:text-text-muted hover:bg-gray-300 dark:hover:bg-ember-ash/70 dark:hover:text-text-ember font-bold text-sm"
                         >
                           Cancel
                         </button>
@@ -91,7 +91,7 @@ const TitleDropdown: React.FC<TitleDropdownProps> = ({
               onCreateNewGoal();
               setIsOpen(false);
             }}
-            className="w-full p-3 text-left font-medium transition-colors border-t text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600"
+            className="w-full p-3 text-left font-bold transition-all border-t-2 text-primary dark:text-ember-flame hover:bg-gray-50 dark:hover:bg-ember-ash/40 border-gray-200 dark:border-ember-ash"
           >
             + Add New Collection
           </button>

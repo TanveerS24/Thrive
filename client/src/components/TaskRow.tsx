@@ -44,11 +44,11 @@ const TaskRow: React.FC<TaskRowProps> = ({
   };
 
   return (
-    <div className="flex items-center hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+    <div className="flex items-center hover:bg-gray-50 dark:hover:bg-ember-ash/30 transition-colors border-b border-gray-100 dark:border-ember-ash/50 last:border-b-0">
       {/* Task Name */}
       <div className="w-56 shrink-0 px-6 py-5">
-        <p className="font-semibold text-gray-900 dark:text-white text-base">{task.name}</p>
-        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{task.targetDays} days target</p>
+        <p className="font-bold text-gray-900 dark:text-text-ember text-base">{task.name}</p>
+        <p className="text-xs font-medium text-gray-700 dark:text-text-muted mt-1">{task.targetDays} days target</p>
       </div>
 
       {/* Day Checkboxes - Show all days of month from 1 to end */}
@@ -64,16 +64,16 @@ const TaskRow: React.FC<TaskRowProps> = ({
               key={index}
               onClick={() => !isFuture && onToggleDay(dateString)}
               disabled={isFuture}
-              className={`w-11 h-11 flex items-center justify-center rounded-lg border-2 transition-all shrink-0 ${
+              className={`w-11 h-11 flex items-center justify-center rounded-lg border-2 transition-all shrink-0 font-bold ${
                 isFuture
-                  ? 'bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700 cursor-not-allowed'
+                  ? 'bg-gray-200 dark:bg-ember-coal/80 border-gray-400 dark:border-ember-ash cursor-not-allowed opacity-60'
                   : isCompleted
-                  ? 'bg-green-500 border-green-600 cursor-pointer hover:bg-green-600'
+                  ? 'bg-primary dark:bg-ember-flame border-primary-dark dark:border-ember-glow cursor-pointer hover:bg-primary-dark dark:hover:shadow-ember shadow-md'
                   : isMissed
-                  ? 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 cursor-pointer hover:bg-red-200 dark:hover:bg-red-900/50'
+                  ? 'bg-red-200 dark:bg-red-900/50 border-red-400 dark:border-red-600 cursor-pointer hover:bg-red-300 dark:hover:bg-red-900/70'
                   : isToday
-                  ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/30 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/50'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 bg-gray-50 dark:bg-gray-800 cursor-pointer'
+                  ? 'border-2 border-primary dark:border-ember-flame bg-orange-100 dark:bg-ember-ash/60 cursor-pointer hover:bg-orange-200 dark:hover:bg-ember-ash/80 shadow-lg dark:shadow-ember'
+                  : 'border-gray-400 dark:border-ember-ash hover:border-primary dark:hover:border-ember-flame bg-white dark:bg-ember-coal/60 cursor-pointer hover:shadow-md'
               }`}
               title={`${dayName}, ${dateString}${isFuture ? ' (Future)' : isMissed ? ' (Missed)' : isCompleted ? ' (Completed)' : ''}`}
             >
@@ -83,7 +83,7 @@ const TaskRow: React.FC<TaskRowProps> = ({
               ) : isMissed ? (
                 <span className="text-red-600 dark:text-red-400 text-xl font-bold">!</span>
               ) : (
-                <span className="text-gray-400 dark:text-gray-600 text-2xl">□</span>
+                <span className="text-gray-400 dark:text-text-muted text-2xl">□</span>
               )}
             </button>
           );
@@ -94,13 +94,13 @@ const TaskRow: React.FC<TaskRowProps> = ({
       <div className="flex gap-2 shrink-0 w-40 px-4 py-4 justify-center">
         <button
           onClick={onHide}
-          className="px-3 py-1.5 text-sm rounded-lg transition-colors text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 font-medium"
+          className="px-3 py-1.5 text-sm rounded-lg transition-all font-semibold text-gray-700 dark:text-text-ember bg-gray-100 dark:bg-ember-ash/60 hover:bg-gray-200 dark:hover:bg-ember-ash hover:shadow-md border border-gray-300 dark:border-ember-ash"
         >
           Hide
         </button>
         <button
           onClick={onDelete}
-          className="px-3 py-1.5 text-sm rounded-lg transition-colors text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 font-medium"
+          className="px-3 py-1.5 text-sm rounded-lg transition-all font-semibold text-white bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 hover:shadow-md border border-red-700 dark:border-red-600"
         >
           Delete
         </button>
